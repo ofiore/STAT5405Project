@@ -1,0 +1,32 @@
+---
+title: "Project Proposal"
+format: html
+editor: visual
+author: Meghan Myles and Owen Fiore
+---
+
+## **Abstract**
+
+This analysis intends to fit models to predict students' math, reading, writing, and aggregate test scores. We will use a data set that provides information about various categorical and continuous predictors expected to influence test scores. Our primary focus is to determine which of these variables are the strongest indicators of student success in test-taking, as well as what features limit student success. We will do this with established modeling and validation methods such as linear regression and ensemble learning methods. We hope that this analysis could allow educators to improve student test scores by giving them the ability to identify students who may be likely to score poorly.
+
+**Source**
+
+<https://www.kaggle.com/datasets/desalegngeb/students-exam-scores>
+
+## **Description**
+
+**What do we propose?**
+
+We plan to build models for students' individual math, reading, and writing scores, as well as a model for a student's cumulative performance (as determined by an aggregation of their three individual scores). Our data set includes primarily categorical predictor variables such as gender, ethnic group, and parental marital status. There is also continuous data indicating a student's number of siblings. In analyzing this data set, we will be able to predict a student's math, reading, and writing scores through the use of the provided predictor data. We will be able to understand what variables are strong indicators of student success. 
+
+**How do we propose to do this?**
+
+We will use the modeling techniques we have learned to create various models. We will begin with data cleaning techniques to ensure that we can work with the data. We will then use one-hot encoding to convert categorical variables into numerical format. We will perform exploratory data analysis and select an appropriate model. We plan to use feature engineering to create a new variable which indicates a student's overall test performance, as evidenced by some aggregation of their three individual test scores. We will fit and evaluate various models. Finally, we will interpret our final models and prepare to report important findings. We have four different responses: math score, reading score, writing score, and cumulative, and while we expect there to be some slight differences across them, there are no predictors that would seem to be good at predicting for example reading scores but not writing scores.
+
+We will first start off using regression techniques to try and use the available predictors to predict the various test scores.  We know there will be significant interaction effects that will need to be included in the regression.  After this, we can also try to use more advanced techniques such as random forests and boosting techniques to try and build an interpretable model to predict student performance on standardized tests. Decision tree based methods are quite strong on categorical features as each split does not need to occur at an integer but rather by each level. As our data set is quite large (roughly 30,000 observations), we may need to take a subset of the data to train the random forest on. In this case we may need to perform balance checks to ensure that the sample means are similar to that of the entire data set or alter hyper parameters in order for us to get a shorter run-time.
+
+**Why will this be useful?**
+
+We expect to see that parent's education and lunch type are both significant predictors of student success. If a student's parents graduate from college (bachelor's degree, etc), they may be more likely to value education and would want their children to succeed and go to college as well.  The only factor in the table that is truly informative on the economic background of a student is LunchType.  Students who receive free/reduced lunch do so because they come from low income families.  There may be a strong interaction term between these two variables, as education and income are thought to be positively correlated, so parents who have college degrees on average make more than those that don't.  TestPrep may also be highly correlated with economic status, as those that are poor may not be able to afford a preparation course.  ParentMarried, IsFirstChild, NrSiblings are insights into a student's homelife, although these may not be as strongly predictive of test scores as some of the previously mentioned variables.  Lastly, one of the most important variables we expect to be predictive is how much students study.  It seems reasonable that regardless of economic status, studying should improve scores (Although it will be important to consider if students who are poor have the ability to study less).
+
+In a real-world-context, our analysis could be used by educators to understand how to better prepare students for their exams. We can try to identify factors that cause students to score poorly so that going forward, educators can better meet the needs of these poorly performing students.   Educators could be advised to give more (or different) attention to students who are labeled as potentially disadvantaged through their scores on the predictor variables. This could allow for more tailored and personalized education, which could improve student learning and, potentially, increase test scores.  Guidance counselors and school resource officers who are informed of these results may be able to be more helpful and provide better resources to low achieving students.

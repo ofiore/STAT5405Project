@@ -39,6 +39,28 @@ As this dataset is fictional, it is impossible to perform any additional researc
 
 ## Methods
 In this paper we will test out the use of several different models of varying complexities
-to try and best fit our data, starting with a linear model.  Regression diagnostics showed that the model was over-predicting the achievement of students who should be doing really well.  Thus we decided to implement a Generalized Linear Model to try and remedy this. A generalized linear model has the form
+to try and best fit our data, starting with a linear model.  Regression diagnostics showed that the model was over-predicting the achievement of students who should be doing really well.  Thus we decided to implement a Generalized Linear Model to try and remedy this. A generalized linear model has a random component, systematic component, and a link function.
+
+The random component is a probability density function from an exponential family:
+\[f(y; \theta, \phi) = \exp{\frac{y\theta - b(\theta)}{a(\phi) + c(y, \phi)}} \]
+where $\theta$ and $\phi > 0$ are scalar parameters, and $a$, $b$, $c$, are known functions.  The form of a Gaussian distribution with an identity link is:
+\[ f(y | \mu, \sigma^2) = \frac{1}{\sqrt(2 \pi \sigma^2)} \exp(-\frac{(y - \mu)^2}{2 \sigma^2}) \]. Where $\mu$ is the mean of the distribution and $\sigma^2$ is the variance
+
+The systematic component is the main part of the model and is a generalized form of a linear model such that for the systematic component: $\eta_i$ we have:
+\[ \eta_i = \beta_0 + \sum_{j=1}^p \beta_j X_{ij} \]
+To obtain this part, we implemented stepwise selection through the `step` R function in both directions, allowing both forward and backwards selection.  Forward or backwards selection is a variable selection algorithm that looks for the most significant predictors and returns a model when there cannot be any additional significant variables added.  The algorithm returned that the following parameters should be included in the model: `Male`, `ParentEduc`, `LunchDiscount`, `TestPrep`, `PracticeSport`, `IsFirstChild`, `WklyStudyHours`, and all variables of the form `EthnicGroup`. 
+
+Male           -11.4038     0.5946 -19.178  < 2e-16 ***
+ParentEduc       6.6478     0.1993  33.351  < 2e-16 ***
+LunchDiscount  -29.4815     0.6233 -47.301  < 2e-16 ***
+TestPrep        20.3223     0.6246  32.536  < 2e-16 ***
+PracticeSport    3.5873     0.4462   8.040 9.66e-16 ***
+IsFirstChild     0.8918     0.6207   1.437    0.151    
+WklyStudyHours   0.5765     0.3883   1.484    0.138    
+EthnicGroupA   -26.3258     1.3420 -19.616  < 2e-16 ***
+EthnicGroupB   -25.8893     1.0286 -25.169  < 2e-16 ***
+EthnicGroupC   -22.6609     0.9488 -23.883  < 2e-16 ***
+EthnicGroupD   -13.0288     0.9828 -13.257  < 2e-16 ***
+
 \[ g(\mu_i) = \eta_i = \beta_0 + \beta_1X__{i1} + ... + \beta_pX__{ip} \]
 We choose to implement a gaussian 

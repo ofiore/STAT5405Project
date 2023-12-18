@@ -1,0 +1,40 @@
+---
+title: "FinalReport"
+format: html
+editor: visual
+author: Meghan Myles and Owen Fiore
+---
+
+# Student Exam Excellence
+
+## Abstract
+
+Standardized tests have been used to try and evaluate how much each student has learned in a classroom.  However, it is possible that predetermined factors related to a student's socioeconomic status play a significant role in how student's learn and how well they perform on standardized tests.  It is important to understand that although standardized tests are meant to level the playing field between students, there are many elements that can contribute to student performance on standardized tests.
+
+## Introduction
+
+It is desirable to explore factors influencing standardized test scores to determine if standardized tests are performing as they should be. Ideally we would like to see that standardized test scores are poorly correlated with socioeconomic factors and very strongly correlated with how much students study for them. This would be indicative that standardized test scores and thus learning are not impacted very much by prior factors and that students of all backgrounds have the chance to succeed.
+
+## Data Description:
+
+Here is a link to the kaggla data: <https://www.kaggle.com/datasets/desalegngeb/students-exam-scores>
+
+-   Gender: Gender of the student (male or female)
+-   EthnicGroup: Ethnic group of the student (nominal groups from A to E)
+-   ParentEduc: Parent education background: (ordinal groups from some high school to master's)
+-   LunchType: Cost of school lunch (free/reduced or standard)
+-   TestPrep: Whether the student completed a test preparation course (none or completed)
+-   ParentMaritalStatus: Student's parent's marital status(nominal groups: married, single, widowed, divorced)
+-   PracticeSport: How often a student plays a sport (ordinal groups from never, sometimes, regularly)
+-   IsFirstChild: If the student is the eldest child in their family (yes or no)
+-   NrSibling: number of siblings the student has
+-   TransportMeans: how the student gets to school (schoolbus or private)
+-   WklyStudyHours: how much the student self-studies (ordinal groups from 0-5, 5-10, and 10+ hours)
+
+MathScore, ReadingScore, WritingScore are the student's math, reading, and writing scores respectively and serve as the response variable in this dataset. Scores range from 0 to 100 with 0 indicating low performance and 100 indicating perfect.
+
+As this dataset is fictional, it is impossible to perform any additional research on the background of the town this data came from or provide more context.
+
+## Goal
+
+## Methods

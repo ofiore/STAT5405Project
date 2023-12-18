@@ -224,7 +224,7 @@ As a reminder, we have made the following changes:
 We will create a new calculated field 'AggregateScore' representing each student's aggregate Math, Reading, and Writing scores.
 ```{r}
 df['AggregateScore'] <- df['MathScore'] + df['ReadingScore'] + df['WritingScore']
-cleaned_df['AggregateScore'] <- df['AggregateScore']
+
 head(df)
 ```
 
@@ -409,5 +409,61 @@ boxplot(AggregateScore ~ EthnicGroup, data = cleaned_df,
         col = c("#B8B8F3", "#D7B8F3", "#F397D6", "#F42272", "#A2506F"),
         names = c("A", "B", "C", "D", "E"))
 ```
+```{r}
+aovpe <- aov(AggregateScore ~ ParentEduc, data = df)
+summary(lm(aovpe))
+```
+```{r}
+library(car)
+aovres <- residuals(aovpe)
+car::qqPlot(aovres, main = NA, pch = 19, col = 2, cex = 0.7)
+```
+This is a significant departure from normality
+We cannot use the Shapio-Wilk signficance test as the sample size is too large, but it is clear that the residuals are not normal.
 
+```{r}
+leveneTest(AggregateScore ~ ParentEduc, data = cleaned_df)
+```
+We test $H_0: \sigma_1^2 = \sigma_2^2 = ... = \sigma_k^2$ for $k$ groups
+As the p value is larger than 0.05, this supports the assumption that the variances are equal.
+
+As assumption of normality is violated, instead we try the kruskal-wallis nonparametric test
+```{r}
+kruskal.test(AggregateScore ~ ParentEduc, data = cleaned_df)
+```
+
+Now we can try linear models
+First we do train test split
+```{r}
+set.seed(123457)
+train.prop <- 0.80
+strats <- df$AggregateScore
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, 
+        function(x) sample(x, length(x)*train.prop)))))
+df.train <- df[idx, ]
+df.test <- df[-idx, ]
+```
+
+
+
+```{r}
+predictors <- c("Male", "ParentEduc", "LunchDiscount", "TestPrep", "PracticeSport", "IsFirstChild", "NrSiblings", "PrivateTransport", "WklyStudyHours", "EthnicGroupA", "EthnicGroupB", "EthnicGroupC", "EthnicGroupD", "EthnicGroupE", "ParentDivorced", "ParentMarried", "ParentSingle", "ParentWidowed" )
+
+all <- glm(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep + PracticeSport + IsFirstChild + NrSiblings + PrivateTransport + WklyStudyHours + EthnicGroupA + EthnicGroupB + EthnicGroupC + EthnicGroupD + EthnicGroupE + ParentDivorced + ParentMarried + ParentSingle + ParentWidowed, data = df.train, family = gaussian(link = "identity"))
+summary(all)
+```
+```{r}
+par(mfrow = c(2,2))
+plot(all)
+```
+
+```{r}
+step_model <- step(all, direction = "both", trace = 0)
+summary(step_model)
+```
+```{r}
+par(mfrow = c(2,2))
+plot(step_model)
+```
 

@@ -38,3 +38,7 @@ As this dataset is fictional, it is impossible to perform any additional researc
 ## Goal
 
 ## Methods
+In this paper we will test out the use of several different models of varying complexities
+to try and best fit our data, starting with a linear model.  Regression diagnostics showed that the model was over-predicting the achievement of students who should be doing really well.  Thus we decided to implement a Generalized Linear Model to try and remedy this. A generalized linear model has the form
+\[ g(\mu_i) = \eta_i = \beta_0 + \beta_1X__{i1} + ... + \beta_pX__{ip} \]
+We choose to implement a gaussian 

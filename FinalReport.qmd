@@ -13,7 +13,14 @@ Standardized tests have been used to try and evaluate how much each student has 
 
 ## Introduction
 
+It is important to be able to measure students’ academic performance, as such measurements can help guide decisions about best educational practices at every level. They can help to identify individual students who are performing poorly in order to give them more individualized instruction. They can identify districts which are underperforming in order to better invest educational resources. They can identify subject areas in which students are consistently underperforming in order to tailor teaching methods. One method of evaluating students’ academic performance is by investigating their scores on standardized exams.
+
 It is desirable to explore factors influencing standardized test scores to determine if standardized tests are performing as they should be. Ideally we would like to see that standardized test scores are poorly correlated with socioeconomic factors and very strongly correlated with how much students study for them. This would be indicative that standardized test scores and thus learning are not impacted very much by prior factors and that students of all backgrounds have the chance to succeed.
+
+There have been a number of investigations into the interactions between socioeconomic factors and student academic performance. According to the NIH, around half of people who grew up in a high-income family have a bachelor’s degree by the age of 25, while only about 10% of people from low-income families have a bachelor’s degree by 25. In addition, there tend to be fewer AP classes offered in schools which traditionally serve low-income and minority students (National Institutes of Health). In addition, on certain standardized tests, some groups tend to consistently outperform others. On the SAT II writing exam, the average white student outperformed the average student of color (Thomas 2004). A University of South Florida study showed that students’ SAT and ACT scores were not predictive of their college academic performance (Micceri 2010). In a 2009 study, Black and latino students performed lower on the MCAT, on average, than white students (Davis 2013). It is clear that standardized test scores are not necessarily only indicative of academic success - it seems that they also capture variation introduced by socioeconomic factors.
+
+We will examine a dataset detailing students’ standardized test scores, as well as measures for several socioeconomic factors and student dedication to academics. In doing so, we will be able to determine whether or not this standardized test is appropriate for measuring true student achievement.
+
 
 ## Data Description:
 
@@ -33,9 +40,21 @@ Here is a link to the kaggla data: <https://www.kaggle.com/datasets/desalegngeb/
 
 MathScore, ReadingScore, WritingScore are the student's math, reading, and writing scores respectively and serve as the response variable in this dataset. Scores range from 0 to 100 with 0 indicating low performance and 100 indicating perfect.
 
+We will treat the variables Gender, EthnicGroup, ParentEduc, ParentMaritalStatus, PracticeSport, NrSibling, and TransportMeans as indicators of students’ socioeconomic status. We will treat the variables TestPrep and WklyStudyHours as indicators of students’ academic dedication.
+
 As this dataset is fictional, it is impossible to perform any additional research on the background of the town this data came from or provide more context.
 
 ## Goal
+
+Our goal is to determine whether or not standardized tests are performing well in measuring academic performance. Our research questions are as follows:
+
+Do math, reading, and writing scores on this standardized test correlate with each other?
+Do performances on the tests correlate with socioeconomic factors, such as highest parental education level or receiving a free/reduced lunch?
+Do performances on the tests correlate with indicators of academic commitment, such as studying for many hours weekly and completing test preparation courses?
+Do test scores vary significantly across gender and ethnic groups?
+In all, does it appear that each of these tests are measuring true academic performance, or are they heavily influenced by other factors?
+
+By regressing test scores on the other variables available in this dataset, we hope to be able to determine answers to these questions. We will determine whether standardized test performance is more highly correlated with socioeconomic factors or academic dedication. This will help us to determine whether or not the tests are appropriate measures of academic performance.
 
 ## Methods
 In this paper we will test out the use of several different models of varying complexities
@@ -64,3 +83,18 @@ EthnicGroupD   -13.0288     0.9828 -13.257  < 2e-16 ***
 
 \[ g(\mu_i) = \eta_i = \beta_0 + \beta_1X__{i1} + ... + \beta_pX__{ip} \]
 We choose to implement a gaussian 
+
+## Results
+
+## Summary and Conclusion
+
+
+## References
+
+Davis, Dwight MD; Dorsey, J. Kevin MD, PhD; Franks, Ronald D. MD; Sackett, Paul R. PhD; Searcy, Cynthia A. PhD; Zhao, Xiaohui PhD. Do Racial and Ethnic Group Differences in Performance on the MCAT Exam Reflect Test Bias?. Academic Medicine 88(5):p 593-602, May 2013. | DOI: 10.1097/ACM.0b013e318286803a
+
+“Individuals from Disadvantaged Backgrounds.” National Institutes of Health, U.S. Department of Health and Human Services, extramural-diversity.nih.gov/diversity-matters/disadvantaged-backgrounds. 
+
+Micceri, Theodore. “Assessing the Usefulness of SAT and Act Tests in Minority Admissions.” Online Submission, Institute of Educational Sciences, 31 Dec. 2009, eric.ed.gov/?id=ED510111. 
+
+Thomas, M.K. (2004), The SAT II: Minority/Majority Test-Score Gaps and What They Could Mean for College Admissions. Social Science Quarterly, 85: 1318-1334. https://doi.org/10.1111/j.0038-4941.2004.00278.x

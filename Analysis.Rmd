@@ -409,6 +409,14 @@ boxplot(AggregateScore ~ EthnicGroup, data = cleaned_df,
         col = c("#B8B8F3", "#D7B8F3", "#F397D6", "#F42272", "#A2506F"),
         names = c("A", "B", "C", "D", "E"))
 ```
+
+```{r}
+predictor_variables <- df[, c("MathScore", "ReadingScore", "WritingScore", "AggregateScore")]
+cor(predictor_variables)
+```
+
+
+
 ```{r}
 aovpe <- aov(AggregateScore ~ ParentEduc, data = df)
 summary(lm(aovpe))
@@ -431,8 +439,7 @@ As assumption of normality is violated, instead we try the kruskal-wallis nonpar
 ```{r}
 kruskal.test(AggregateScore ~ ParentEduc, data = cleaned_df)
 ```
-
-Now we can try linear models
+## Linear Models
 First we do train test split
 ```{r}
 set.seed(123457)
@@ -465,5 +472,32 @@ summary(step_model)
 ```{r}
 par(mfrow = c(2,2))
 plot(step_model)
+```
+```{r}
+test_predictions <- predict(step_model, newdata = df.test, type = "link")
+test_results <- data.frame(Actual = df.test$AggregateScore, Predicted = test_predictions)
+test_results
+```
+```{r}
+plot(test_results$Actual, test_results$Predicted, col="grey33", cex=0.3, xlab="Actual", ylab="Predicted")
+abline(0,1)
+```
+```{r}
+car::vif(step_model)
+```
+
+There does not appear to be multicollinearity between the predictors as we would expect VIF to be larger than 1.
+
+```{r}
+mse <- mean((test_results$Actual - test_results$Predicted)^2)
+mse
+```
+
+## Random Forests
+```{r}
+library(ranger)
+rf_step <- ranger(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep + PracticeSport + IsFirstChild + NrSiblings + PrivateTransport + WklyStudyHours + EthnicGroupA + EthnicGroupB + EthnicGroupC + EthnicGroupD + EthnicGroupE + ParentDivorced + ParentMarried + ParentSingle + ParentWidowed, data = df.train, importance = "impurity")
+rf_step
+#rf_all <- ranger
 ```
 

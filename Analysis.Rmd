@@ -401,9 +401,61 @@ mse
 
 ## Random Forests
 ```{r}
+set.seed(1)
 library(ranger)
-rf_step <- ranger(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep + PracticeSport + IsFirstChild + NrSiblings + PrivateTransport + WklyStudyHours + EthnicGroupA + EthnicGroupB + EthnicGroupC + EthnicGroupD + EthnicGroupE + ParentDivorced + ParentMarried + ParentSingle + ParentWidowed, data = df.train, importance = "impurity")
+rf_step <- ranger(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep + PracticeSport + IsFirstChild + WklyStudyHours + EthnicGroupA + EthnicGroupB + EthnicGroupC + EthnicGroupD + EthnicGroupE, data = df.train, importance = "impurity")
 rf_step
-#rf_all <- ranger
 ```
 
+
+Grid Search Hyperparameter tuning
+```{r}
+set.seed(1)
+library(ranger)
+
+# Define your custom function for training a random forest
+train_rf <- function(num.trees, min.node.size) {
+  
+  
+  # Create the random forest model
+  rf_model <- ranger(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep + PracticeSport + IsFirstChild + WklyStudyHours + EthnicGroupA + EthnicGroupB + EthnicGroupC + EthnicGroupD + EthnicGroupE,
+                     data = df.train,
+                     importance = "impurity",
+                     num.trees = num.trees,
+                     min.node.size = min.node.size)
+  
+  # Calculate OOB error (MSE)
+  oob_error <- sqrt(rf_model$prediction.error)
+  
+  # Return the trained model and OOB error
+  return(list(model = rf_model, oob_error = oob_error))
+}
+
+# Example usage:
+# Replace 'your_data' with your actual dataset and 'your_target_col' with your target variable
+# Set the hyperparameter values you want to try
+num_trees_values <- c(300, 500, 700, 900)
+min_node_size_values <- c(20, 25, 30, 35)
+
+# Initialize variables to keep track of the best model and its OOB error
+best_model <- NULL
+best_oob_error <- Inf
+
+# Perform grid search
+for (num_trees in num_trees_values) {
+  for (min_node_size in min_node_size_values) {
+    result <- train_rf(num_trees, min_node_size)
+    model <- result$model
+    oob_error <- result$oob_error
+    
+    # Check if the current model has a lower OOB error
+    if (oob_error < best_oob_error) {
+      best_model <- model
+      best_oob_error <- oob_error
+    }
+  }
+}
+
+# The best model is stored in 'best_model' with the lowest OOB error
+print(best_model)
+```

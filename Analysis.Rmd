@@ -39,6 +39,9 @@ We dropped 11,398 rows, leaving us with 19,243 rows. This is acceptable. We will
 duplicate_rows <- df[duplicated(df), ]
 print("Duplicate Rows:")
 print(duplicate_rows)
+
+cleaned_df <- df # store a version of the df that is not one-hot encoded
+cleaned_df$AggregateScore <- cleaned_df$MathScore + cleaned_df$ReadingScore + cleaned_df$WritingScore
 ```
 
 There are no duplicate rows.
@@ -243,172 +246,75 @@ hist(df$AggregateScore, main = "Aggregate Score Distribution", xlab = "Aggregate
 We can see that each of the above histograms is unimodal and left-skew.
 
 ```{r}
-par(mfrow = c(2, 2))
-boxplot(MathScore ~ Gender, data = cleaned_df,
-        main = "Math Scores by Gender",
-        xlab = "Gender",
-        ylab = "Scores",
-        col = c("pink", "skyblue"))
-boxplot(ReadingScore ~ Gender, data = cleaned_df,
-        main = "Reading Scores by Gender",
-        xlab = "Gender",
-        ylab = "Scores",
-        col = c("pink", "skyblue"))
-boxplot(WritingScore ~ Gender, data = cleaned_df,
-        main = "Writing Scores by Gender",
-        xlab = "Gender",
-        ylab = "Scores",
-        col = c("pink", "skyblue"))
+par(pin = c(100, 100))
+par(mfrow = c(3, 2), mar = c(2, 4, 2, 2))
+
 boxplot(AggregateScore ~ Gender, data = cleaned_df,
         main = "Aggregate Scores by Gender",
         xlab = "Gender",
         ylab = "Scores",
         col = c("pink", "skyblue"))
-```
-```{r}
-par(mfrow = c(2, 2))
-par(mar = c(5, 2, 2, 2) + 0.1)
 
-edu_levels <- levels(cleaned_df$ParentEduc)
-
-boxplot(MathScore ~ ParentEduc, data = cleaned_df,
-        main = "Math Scores by Parental Education Level",
-        xlab = "Parental Education Level",
-        ylab = "Scores",
-        col = c("#422680", "#341671", "#280659", "#660f56", "#ae2d68", "#f54952"))
-boxplot(ReadingScore ~ ParentEduc, data = cleaned_df,
-        main = "Reading Scores by Parental Education Level",
-        xlab = "Parental Education Level",
-        ylab = "Scores",
-        col = c("#422680", "#341671", "#280659", "#660f56", "#ae2d68", "#f54952"))
-
-boxplot(WritingScore ~ ParentEduc, data = cleaned_df,
-        main = "Writing Scores by Parental Education Level",
-        xlab = "Parental Education Level",
-        ylab = "Scores",
-        col = c("#422680", "#341671", "#280659", "#660f56", "#ae2d68", "#f54952"))
-
-boxplot(AggregateScore ~ ParentEduc, data = cleaned_df,
-        main = "Aggregate Scores by Parental Education Level",
-        xlab = "Parental Education Level",
-        ylab = "Scores",
-        col = c("#422680", "#341671", "#280659", "#660f56", "#ae2d68", "#f54952"))
-```
-
-```{r}
-par(mfrow = c(2, 2))
-par(las = 1)
-par(mar = c(5, 2, 2, 2) + 0.1)
-
-boxplot(MathScore ~ LunchType, data = cleaned_df,
-        main = "Math Scores by Lunch Type",
-        xlab = "Lunch Type",
-        ylab = "Scores",
-        col = c("#A2C5AC", "#7F6A93"))
-boxplot(ReadingScore ~ LunchType, data = cleaned_df,
-        main = "Reading Scores by Lunch Type",
-        xlab = "Lunch Type",
-        ylab = "Scores",
-        col = c("#A2C5AC", "#7F6A93"))
-boxplot(WritingScore ~ LunchType, data = cleaned_df,
-        main = "Writing Scores by Lunch Type",
-        xlab = "Lunch Type",
-        ylab = "Scores",
-        col = c("#A2C5AC", "#7F6A93"))
 boxplot(AggregateScore ~ LunchType, data = cleaned_df,
         main = "Aggregate Scores by Lunch Type",
         xlab = "Lunch Type",
         ylab = "Scores",
         col = c("#A2C5AC", "#7F6A93"))
-```
 
-```{r}
-par(mfrow = c(2, 2))
-boxplot(MathScore ~ TestPrep, data = cleaned_df,
-        main = "Math Scores by Test Preparation Status",
-        xlab = "Test Preparation Status",
-        ylab = "Scores",
-        col = c("#00537a", "#ffba42"))
-boxplot(ReadingScore ~ TestPrep, data = cleaned_df,
-        main = "Reading Scores by Test Preparation Status",
-        xlab = "Test Preparation Status",
-        ylab = "Scores",
-        col = c("#00537a", "#ffba42"))
-boxplot(WritingScore ~ TestPrep, data = cleaned_df,
-        main = "Writing Scores by Test Preparation Status",
-        xlab = "Test Preparation Status",
-        ylab = "Scores",
-        col = c("#00537a", "#ffba42"))
 boxplot(AggregateScore ~ TestPrep, data = cleaned_df,
         main = "Aggregate Scores by Test Preparation Status",
         xlab = "Test Preparation Status",
         ylab = "Scores",
         col = c("#00537a", "#ffba42"))
-```
-
-```{r}
-par(mfrow = c(2, 2))
-par(mar = c(5, 2, 2, 2) + 0.1)
-
-sport_levels <- levels(cleaned_df$PracticeSport)
-
-boxplot(MathScore ~ PracticeSport, data = cleaned_df,
-        main = "Math Scores by Sports Practice",
-        xlab = "Sports Practice",
-        ylab = "Scores",
-        col = c("#fd0363", "#9c1057", "#3b1d4a"))
-boxplot(ReadingScore ~ PracticeSport, data = cleaned_df,
-        main = "Reading Scores by Sports Practice",
-        xlab = "Sports Practice",
-        ylab = "Scores",
-        col = c("#fd0363", "#9c1057", "#3b1d4a"))
-
-boxplot(WritingScore ~ PracticeSport, data = cleaned_df,
-        main = "Writing Scores by Sports Practice",
-        xlab = "Sports Practice",
-        ylab = "Scores",
-        col = c("#fd0363", "#9c1057", "#3b1d4a"))
 
 boxplot(AggregateScore ~ PracticeSport, data = cleaned_df,
         main = "Aggregate Scores by Sports Practice",
         xlab = "Sports Practice",
         ylab = "Scores",
         col = c("#fd0363", "#9c1057", "#3b1d4a"))
+
+boxplot(AggregateScore ~ IsFirstChild, data = cleaned_df,
+        main = "Aggregate Scores by First Child Status",
+        xlab = "First child?",
+        ylab = "Scores",
+        col = c("#afdedc", "#fdd54f"))
+
+boxplot(AggregateScore ~ TransportMeans, data = cleaned_df,
+        main = "Aggregate Scores by School Transportation",
+        xlab = "Uses private transport?",
+        ylab = "Scores",
+        col = c("#ffadad", "#bdb2ff"))
+
 ```
 
 ```{r}
-par(mfrow = c(2, 2))
-par(las = 0)
-par(mar = c(5, 2, 2, 2) + 0.1)
+par(pin = c(100, 100))
+par(mfrow = c(2, 2), mar = c(4, 4, 4, 4))
 
-boxplot(MathScore ~ EthnicGroup, data = cleaned_df,
-        main = "Math Scores by Ethnic Group",
-        xlab = "Ethinic group",
+boxplot(AggregateScore ~ NrSiblings, data = cleaned_df,
+        main = "Aggregate Scores by Number of Siblings",
+        xlab = "Number of siblings",
         ylab = "Scores",
-        col = c("#B8B8F3", "#D7B8F3", "#F397D6", "#F42272", "#A2506F"),
-        names = c("A", "B", "C", "D", "E"))
+        col = c("#f55c7a", "#f56c77", "#f57c73", "#f68c70", "#f69c6d", "#f6ac69", "#f6bc66"))
 
-boxplot(ReadingScore ~ EthnicGroup, data = cleaned_df,
-        main = "Reading Scores by Ethnic Group",
-        xlab = "Ethnic group",
+boxplot(AggregateScore ~ ParentEduc, data = cleaned_df,
+        main = "Aggregate Scores by Parent Education Level",
+        xlab = "Parental Education Level",
         ylab = "Scores",
-        col = c("#B8B8F3", "#D7B8F3", "#F397D6", "#F42272", "#A2506F"),
-        names = c("A", "B", "C", "D", "E"))
+        col = c("#422680", "#341671", "#280659", "#660f56", "#ae2d68", "#f54952"))
 
-boxplot(WritingScore ~ EthnicGroup, data = cleaned_df,
-        main = "Writing Scores by Ethnic Grouo",
-        xlab = "Ethnic group",
+boxplot(AggregateScore ~ WklyStudyHours, data = cleaned_df,
+        main = "Aggregate Scores by Weekly Study Hours",
+        xlab = "Weekly Study Hours",
         ylab = "Scores",
-        col = c("#B8B8F3", "#D7B8F3", "#F397D6", "#F42272", "#A2506F"),
-        names = c("A", "B", "C", "D", "E"))
+        col = c("#3d0066", "#c86bfa", "#fdc500"))
 
-boxplot(AggregateScore ~ EthnicGroup, data = cleaned_df,
-        main = "Aggregate Scores by Ethnic Group",
-        xlab = "Ethnic group",
+boxplot(AggregateScore ~ ParentMaritalStatus, data = cleaned_df,
+        main = "Aggregate Scores by Parent Marital Status",
+        xlab = "Parental Marital Status",
         ylab = "Scores",
-        col = c("#B8B8F3", "#D7B8F3", "#F397D6", "#F42272", "#A2506F"),
-        names = c("A", "B", "C", "D", "E"))
-```
+        col = c("#219ebc", "#023047", "#ffb703", "#fb8500"))
+```      
 
 ```{r}
 predictor_variables <- df[, c("MathScore", "ReadingScore", "WritingScore", "AggregateScore")]

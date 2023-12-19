@@ -153,3 +153,13 @@ for (num_trees in num_trees_values) {
 # The best model is stored in 'best_model' with the lowest OOB error
 print(best_model)
 ```
+
+```{r}
+library(vip)
+importance <- vi(best_model)
+importance
+```
+```{r}
+vip(importance)
+```
+

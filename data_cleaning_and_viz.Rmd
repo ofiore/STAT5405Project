@@ -1,0 +1,317 @@
+---
+title: "Supplementary - Data Cleaning and Visualization"
+author: "Meghan Myles and Owen Fiore"
+date: "2023-12-17"
+output: html_document
+---
+  
+  # Data Setup and Cleaning
+  
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(foreign)
+```
+
+```{r}
+df <- read.csv("RawData.csv")
+```
+
+## Data Cleaning
+
+```{r}
+original_nrow <- nrow(df)
+print(paste('Original number of rows:', original_nrow))
+
+# Convert blank cells to NA
+df[df == ""] <- NA
+df[df == " "] <- NA
+df <- na.omit(df)
+na_omitted_nrow <- nrow(df)
+print(paste('Number of rows after dropping rows with null values:', na_omitted_nrow))
+print(paste('Number of rows dropped:', original_nrow - na_omitted_nrow))
+```
+
+We dropped 11,398 rows, leaving us with 19,243 rows. This is acceptable. We will now check for duplicate rows.
+
+```{r}
+duplicate_rows <- df[duplicated(df), ]
+print("Duplicate Rows:")
+print(duplicate_rows)
+
+cleaned_df <- df # store a version of the df that is not one-hot encoded
+cleaned_df$AggregateScore <- cleaned_df$MathScore + cleaned_df$ReadingScore + cleaned_df$WritingScore
+```
+
+There are no duplicate rows.
+
+We will now explore some of our categorical variables, and change strings to numerical labels. We will start with our binary variables.
+
+We will encode female as '0' and male as '1'. We will also change the name of the 'Gender' column to 'Male' to better reflect this change.
+
+```{r}
+Gender_counts <- df %>%
+  count(Gender)
+print(Gender_counts)
+
+df <- df %>%
+  mutate(Gender = ifelse(Gender == 'male', 1, 0))
+
+names(df)[names(df) == "Gender"] <- "Male"
+```
+
+We will encode LunchType: 'free/reduced' as 1 and LunchType: 'standard' as 0. We will also change the name of this column to 'LunchDiscount' to better reflect the changes made.
+
+```{r}
+LunchType_counts <- df %>%
+  count(LunchType)
+print(LunchType_counts)
+
+df <- df %>%
+  mutate(LunchType = ifelse(LunchType == 'free/reduced', 1, 0))
+names(df)[names(df) == "LunchType"] <- "LunchDiscount"
+```
+
+We will encode TestPrep: completed as 1 and TestPrep: none as 0.
+
+```{r}
+TestPrep_counts <- df %>%
+  count(TestPrep)
+print(TestPrep_counts)
+
+df <- df %>%
+  mutate(TestPrep = ifelse(TestPrep == 'completed', 1, 0))
+```
+
+We will encode IsFirstChild: yes as 1, and IsFirstChild: no as 0.
+
+```{r}
+IsFirstChild_counts <- df %>%
+  count(IsFirstChild)
+print(IsFirstChild_counts)
+
+df <- df %>%
+  mutate(IsFirstChild = ifelse(IsFirstChild == 'yes', 1, 0))
+```
+
+We will encode TransportMeans: private as 1, and TransportMeans: school_bus as 0. We will also change the column name to 'PrivateTransport' to better reflect these changes.
+
+```{r}
+TransportMeans_counts <- df %>%
+  count(TransportMeans)
+print(TransportMeans_counts)
+
+df <- df %>%
+  mutate(TransportMeans = ifelse(TransportMeans == 'private', 1, 0))
+names(df)[names(df) == "TransportMeans"] <- "PrivateTransport"
+```
+
+As a review, we have made the following encoding changes:
+  
+  | Original variable name | New variable name | 1         | 0      |
+  |------------------------|-------------------|-----------|--------|
+  | Gender                 | Male              | male      | female |
+  | LunchType              | LunchDiscount     | yes       | no     |
+  | TestPrep               |                   | completed | none   |
+  | IsFirstChild           |                   | yes       | no     |
+  | TransportMeans         | PrivateTransport  | yes       | no     |
+  
+  Now, we will use one-hot encoding to encode the non-binary categorical variables.
+
+```{r}
+EthnicGroup_counts <- df %>%
+  count(EthnicGroup)
+print(EthnicGroup_counts)
+
+df <- df %>%
+  mutate(
+    EthnicGroupA = ifelse(EthnicGroup == 'group A', 1, 0),
+    EthnicGroupB = ifelse(EthnicGroup == 'group B', 1, 0),
+    EthnicGroupC = ifelse(EthnicGroup == 'group C', 1, 0),
+    EthnicGroupD = ifelse(EthnicGroup == 'group D', 1, 0),
+    EthnicGroupE = ifelse(EthnicGroup == 'group E', 1, 0)
+  )
+
+df <- df %>%
+  select(-EthnicGroup)
+
+head(df)
+```
+Now we convert ParentEduc to be a factor variable as its levels are ordinal
+```{r}
+ParentEduc_counts <- df %>%
+  count(ParentEduc)
+print(ParentEduc_counts)
+
+df$ParentEduc <- as.factor(df$ParentEduc)
+df$ParentEduc <- factor(df$ParentEduc, levels = c(
+  "some high school", "high school", "some college",
+  "associate's degree", "bachelor's degree", "master's degree"
+))
+
+df$ParentEduc <- as.integer(df$ParentEduc)
+
+head(df)
+```
+
+Now we one hot encode ParentMaritalStatus
+```{r}
+ParentMaritalStatus_counts <- df %>%
+  count(ParentMaritalStatus)
+print(ParentMaritalStatus_counts)
+
+df <- df %>%
+  mutate(
+    ParentDivorced = ifelse(ParentMaritalStatus == "divorced", 1, 0),
+    ParentMarried = ifelse(ParentMaritalStatus == "married", 1, 0),
+    ParentSingle = ifelse(ParentMaritalStatus == "single", 1, 0),
+    ParentWidowed = ifelse(ParentMaritalStatus == "widowed", 1, 0)
+  )
+
+df <- df %>%
+  select(-ParentMaritalStatus)
+
+head(df)
+```
+
+We convert PracticeSport to a factor variables as its levels are ordinal
+```{r}
+PracticeSport_counts <- df %>%
+  count(PracticeSport)
+print(PracticeSport_counts)
+
+df$PracticeSport <- factor(df$PracticeSport, levels = c("never", "sometimes", "regularly"))
+df$PracticeSport <- as.integer(df$PracticeSport)
+
+head(df)
+```
+
+We convert WklyStudyHours to a factor variables as its levels are ordinal
+```{r}
+WklyStudyHours_counts <- df %>%
+  count(WklyStudyHours)
+print(WklyStudyHours_counts)
+
+
+df$WklyStudyHours <- factor(df$WklyStudyHours, levels = c("5 - 10", "< 5", "> 10"))
+df$WklyStudyHours <- as.integer(df$WklyStudyHours)
+
+head(df)
+```
+
+Now, all of our variables have been one-hot encoded. We will move the response variable columns to the end of the df for readability.
+
+```{r}
+df <- df %>%
+  select(-MathScore, -ReadingScore, -WritingScore,
+         MathScore, ReadingScore, WritingScore)
+
+head(df)
+```
+
+As a reminder, we have made the following changes:
+  
+  | Original Column name | New Created Columns      |
+  |----------------------|--------------------------|
+  | EthnicGroup          | EthnicGroupA             |
+  |                      | EthnicGroupB             |
+  |                      | EthnicGroupC             |
+  |                      | EthnicGroupD             |
+  |                      | EthnicGroupE             |
+  | ParentMaritalStatus  | ParentDivorced           |
+  |                      | ParentMarried            |
+  |                      | ParentSingle             |
+  |                      | ParentWidowed            |
+  
+  We will create a new calculated field 'AggregateScore' representing each student's aggregate Math, Reading, and Writing scores.
+```{r}
+df['AggregateScore'] <- df['MathScore'] + df['ReadingScore'] + df['WritingScore']
+
+head(df)
+```
+
+
+## Data Visualization
+
+We will create some basic visualizations of our data in order to better understand its structure.
+```{r}
+par(mfrow = c(2, 2))
+hist(df$MathScore, main = "Math Score Distribution", xlab = "Math Score")
+hist(df$ReadingScore, main = "Reading Score Distribution", xlab = "Reading Score")
+hist(df$WritingScore, main = "Writing Score Distribution", xlab = "Writing Score")
+hist(df$AggregateScore, main = "Aggregate Score Distribution", xlab = "Aggregate Score")
+```
+
+We can see that each of the above histograms is unimodal and left-skew.
+
+```{r}
+par(pin = c(100, 100))
+par(mfrow = c(3, 2), mar = c(2, 4, 2, 2))
+
+boxplot(AggregateScore ~ Gender, data = cleaned_df,
+        main = "Aggregate Scores by Gender",
+        xlab = "Gender",
+        ylab = "Scores",
+        col = c("pink", "skyblue"))
+
+boxplot(AggregateScore ~ LunchType, data = cleaned_df,
+        main = "Aggregate Scores by Lunch Type",
+        xlab = "Lunch Type",
+        ylab = "Scores",
+        col = c("#A2C5AC", "#7F6A93"))
+
+boxplot(AggregateScore ~ TestPrep, data = cleaned_df,
+        main = "Aggregate Scores by Test Preparation Status",
+        xlab = "Test Preparation Status",
+        ylab = "Scores",
+        col = c("#00537a", "#ffba42"))
+
+boxplot(AggregateScore ~ PracticeSport, data = cleaned_df,
+        main = "Aggregate Scores by Sports Practice",
+        xlab = "Sports Practice",
+        ylab = "Scores",
+        col = c("#fd0363", "#9c1057", "#3b1d4a"))
+
+boxplot(AggregateScore ~ IsFirstChild, data = cleaned_df,
+        main = "Aggregate Scores by First Child Status",
+        xlab = "First child?",
+        ylab = "Scores",
+        col = c("#afdedc", "#fdd54f"))
+
+boxplot(AggregateScore ~ TransportMeans, data = cleaned_df,
+        main = "Aggregate Scores by School Transportation",
+        xlab = "Uses private transport?",
+        ylab = "Scores",
+        col = c("#ffadad", "#bdb2ff"))
+
+```
+
+```{r}
+par(pin = c(100, 100))
+par(mfrow = c(2, 2), mar = c(4, 4, 4, 4))
+
+boxplot(AggregateScore ~ NrSiblings, data = cleaned_df,
+        main = "Aggregate Scores by Number of Siblings",
+        xlab = "Number of siblings",
+        ylab = "Scores",
+        col = c("#f55c7a", "#f56c77", "#f57c73", "#f68c70", "#f69c6d", "#f6ac69", "#f6bc66"))
+
+boxplot(AggregateScore ~ ParentEduc, data = cleaned_df,
+        main = "Aggregate Scores by Parent Education Level",
+        xlab = "Parental Education Level",
+        ylab = "Scores",
+        col = c("#422680", "#341671", "#280659", "#660f56", "#ae2d68", "#f54952"))
+
+boxplot(AggregateScore ~ WklyStudyHours, data = cleaned_df,
+        main = "Aggregate Scores by Weekly Study Hours",
+        xlab = "Weekly Study Hours",
+        ylab = "Scores",
+        col = c("#3d0066", "#c86bfa", "#fdc500"))
+
+boxplot(AggregateScore ~ ParentMaritalStatus, data = cleaned_df,
+        main = "Aggregate Scores by Parent Marital Status",
+        xlab = "Parental Marital Status",
+        ylab = "Scores",
+        col = c("#219ebc", "#023047", "#ffb703", "#fb8500"))
+```      

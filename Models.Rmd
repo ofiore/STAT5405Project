@@ -162,4 +162,57 @@ importance
 ```{r}
 vip(importance)
 ```
+```{r}
+rf_predictions <- predict(best_model, data = df.test)
+test_df <- data.frame(actual = df.test$AggregateScore, pred = NA)
+test_df$pred <- rf_predictions$predictions
+```
+
+```{r}
+plot(test_df$actual, test_df$pred, col="grey33", cex=0.3, xlab="Actual", ylab="Predicted")
+abline(0,1)
+
+length(test_df$pred)
+```
+
+
+## Gradient Boosting
+```{r}
+library(xgboost)
+library(Matrix)
+```
+
+```{r}
+matrix_predictors.train <- 
+  as.matrix(sparse.model.matrix(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep + PracticeSport + IsFirstChild + WklyStudyHours + EthnicGroupA + EthnicGroupB + EthnicGroupC + EthnicGroupD + EthnicGroupE, data = df.train))
+
+matrix_predictors.test <- 
+  as.matrix(sparse.model.matrix(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep + PracticeSport + IsFirstChild + WklyStudyHours + EthnicGroupA + EthnicGroupB + EthnicGroupC + EthnicGroupD + EthnicGroupE, data = df.test))
+```
+
+```{r}
+pred.train.gbm <- data.matrix(matrix_predictors.train) # predictors only
+#convert factor to numeric
+data.train.gbm <- as.numeric(as.character(df.train$AggregateScore)) 
+dtrain <- xgb.DMatrix(data = pred.train.gbm, label=data.train.gbm)
+# Test dataset
+pred.test.gbm <- data.matrix(matrix_predictors.test) # predictors only
+ #convert factor to numeric
+data.test.gbm <- as.numeric(as.character(df.test$AggregateScore))
+
+dtest <- xgb.DMatrix(data = pred.test.gbm, label=data.test.gbm)
+```
+
+```{r}
+watchlist <- list(train=dtrain, test=dtest)
+param <- list(max_depth = 2, eta = .1, nthread = 2,
+              objective = "reg:squarederror")
+
+model.xgb <- xgb.train(param, dtrain, nrounds = 100, watchlist)
+```
+```{r}
+pred.y.test <- predict(model.xgb, pred.test.gbm)
+plot(pred.test.gbm, pred.y.train, col="grey33", cex=0.3, xlab="Actual", ylab="Predicted")
+abline(0,1)
+```
 

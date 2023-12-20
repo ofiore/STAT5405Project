@@ -243,6 +243,11 @@ hist(df$WritingScore, main = "Writing Score Distribution", xlab = "Writing Score
 hist(df$AggregateScore, main = "Aggregate Score Distribution", xlab = "Aggregate Score")
 ```
 
+
+```{r}
+print(unique(cleaned_df$ParentEduc))
+```
+
 We can see that each of the above histograms is unimodal and left-skew.
 
 ```{r}
@@ -267,6 +272,8 @@ boxplot(AggregateScore ~ TestPrep, data = cleaned_df,
         ylab = "Scores",
         col = c("#00537a", "#ffba42"))
 
+order_of_plots <- c("never", "sometimes", "regularly")
+cleaned_df$PracticeSport <- factor(cleaned_df$PracticeSport, levels = order_of_plots)
 boxplot(AggregateScore ~ PracticeSport, data = cleaned_df,
         main = "Aggregate Scores by Sports Practice",
         xlab = "Sports Practice",
@@ -289,14 +296,17 @@ boxplot(AggregateScore ~ TransportMeans, data = cleaned_df,
 
 ```{r}
 par(pin = c(100, 100))
-par(mfrow = c(2, 2), mar = c(4, 4, 4, 4))
+par(mfrow = c(3, 2), mar = c(2, 4, 2, 2))
 
 boxplot(AggregateScore ~ NrSiblings, data = cleaned_df,
         main = "Aggregate Scores by Number of Siblings",
         xlab = "Number of siblings",
         ylab = "Scores",
-        col = c("#f55c7a", "#f56c77", "#f57c73", "#f68c70", "#f69c6d", "#f6ac69", "#f6bc66"))
+        col = c("#f55c7a", "#f56c77", "#f57c73", "#f68c70", "#f69c6d", "#f6ac69", "#f6bc66", "#EED329"))
 
+
+order_of_plots <- c("some high school", "high school", "some college", "associate's degree", "bachelor's degree", "master's degree")
+cleaned_df$ParentEduc <- factor(cleaned_df$ParentEduc, levels = order_of_plots)
 boxplot(AggregateScore ~ ParentEduc, data = cleaned_df,
         main = "Aggregate Scores by Parent Education Level",
         xlab = "Parental Education Level",
@@ -314,4 +324,12 @@ boxplot(AggregateScore ~ ParentMaritalStatus, data = cleaned_df,
         xlab = "Parental Marital Status",
         ylab = "Scores",
         col = c("#219ebc", "#023047", "#ffb703", "#fb8500"))
-```      
+
+boxplot(AggregateScore ~ EthnicGroup, data = cleaned_df,
+        main = "Aggregate Scores by Ethnic Group",
+        xlab = "Ethnic Group",
+        ylab = "Scores",
+        col = c("#2c78b7", "#54c5e0", "#a3ebe7", "#f0f6f6", "#ffafd7"))
+```
+
+In looking at the above 10 boxplots, we can visually compare aggregate score means between groups. This will give us an indication of what variables we expect to vary significantly between groups. It would appear that variables which correlate with different scores across groups include gender, whether or not a student received a lunch discount, whether or not a student completed test preparation, highest parental education level, and ethnic group. The variables which do not seem to have variable average test scores across groups are whether or not a student participates in sports, whether or not a student is a first child, number of siblings, weekly study hours, and parental marital status.

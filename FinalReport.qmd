@@ -9,7 +9,7 @@ author: Meghan Myles and Owen Fiore
 
 ## Abstract
 
-Standardized tests have been used to try and evaluate how much each student has learned in a classroom.  However, it is possible that predetermined factors related to a student's socioeconomic status play a significant role in how student's learn and how well they perform on standardized tests.  It is important to understand that although standardized tests are meant to level the playing field between students, there are many elements that can contribute to student performance on standardized tests.
+Standardized tests have been used to try and evaluate how much each student has learned in a classroom. However, it is possible that predetermined factors related to a student's socioeconomic status play a significant role in how student's learn and how well they perform on standardized tests. It is important to understand that although standardized tests are meant to level the playing field between students, there are many elements that can contribute to student performance on standardized tests. We created a number of models to best describe test scores in terms of a number of academic and socioeconomic variables. We found that the standardized test scores analyzed in this data set were highly dependent on socioeconomic factors. We believe that these tests are not necessarily good measures of student academic performance.
 
 ## Introduction
 
@@ -43,6 +43,17 @@ We will treat the variables Gender, EthnicGroup, ParentEduc, ParentMaritalStatus
 
 As this dataset is fictional, it is impossible to perform any additional research on the background of the town this data came from or provide more context.
 
+Here are histograms showing the distribution of Math, Writing, Reading, and Aggregate Scores
+
+```{r, echo = FALSE}
+df <- read.csv("DataToModel.csv")
+par(mfrow = c(2,2))
+hist(df$MathScore, main = "Math Score Distribution", xlab = "Math Score")
+hist(df$ReadingScore, main = "Reading Score Distribution", xlab = "Reading Score")
+hist(df$WritingScore, main = "Writing Score Distribution", xlab = "Writing Score")
+hist(df$AggregateScore, main = "Aggregate Score Distribution", xlab = "Aggregate Score")
+```
+
 ## Goal
 
 Our goal is to determine whether or not standardized tests are performing well in measuring academic performance. Our research questions are as follows:
@@ -67,7 +78,7 @@ The systematic component is the main part of the model and is a generalized form
 
 $\eta_i = \beta_0 + \sum_{j=1}^p \beta_j X_{ij}$
 
-To obtain this part, we implemented stepwise selection through the `step` R function in both directions, allowing both forward and backwards selection. Forward or backwards selection is a variable selection algorithm that looks for the most significant predictors and returns a model when there cannot be any additional significant variables added. The algorithm returned that the following parameters should be included in the model: `Male`, `ParentEduc`, `LunchDiscount`, `TestPrep`, `PracticeSport`, `IsFirstChild`, `WklyStudyHours`, and all variables of the form `EthnicGroup`. Thus our model looks like:
+To obtain this part, we implemented stepwise selection through the `step` R function in both directions, allowing both forward and backwards selection. Forward or backwards selection is a variable selection algorithm that looks for the most significant predictors and returns a model when there cannot be any additional significant variables added. For each predictor, step selection tests $H_0: \beta = 0$ versus $H_a: \beta \neq 0$ to determine whether the predictor is significant and should be added to the model. This process will continue until convergence, at which point adding or removing additional variables would either induce variance, bias, or multicollinearity. The algorithm returned that the following parameters should be included in the model: `Male`, `ParentEduc`, `LunchDiscount`, `TestPrep`, `PracticeSport`, `IsFirstChild`, `WklyStudyHours`, and all variables of the form `EthnicGroup`. Thus our model looks like:
 
 $\eta_i = \beta_0 + \beta_1 Male + \beta_2ParentEduc + ... + \beta_{11}EthnicGroupE$
 
@@ -95,7 +106,7 @@ We have four predictor variables in our dataset: `MathScore`, `ReadingScore`, `W
 
 Now that we have chose `AggregateScore` as our predictor, we can split our data into 80% training and 20% testing.
 
-```{r}
+```{r, echo = FALSE}
 set.seed(123457)
 train.prop <- 0.80
 strats <- df$AggregateScore
@@ -245,13 +256,47 @@ We see that the best model has 900 trees and has a target node size of 25 rather
 library(vip)
 ```
 
-
 ```{r}
 importance <- vi(best_model)
 vip(importance)
 ```
 
-We see that `LunchDiscount` is by far the most important variable, followed by `ParentEduc` and then `TestPrep`, indicating that the largest factor in predicting student performance in a random forest is based on whether or not a school qualifies for free or reduced lunch. Having reduced or free lunch is a measure of the income of the student's family, and thus it is reasonable to conclude that family income is a major factor in determining `AggregateScore`. We can confirm these results by viewing the output of the GLIM, and after doing so we see that the coefficient on `LunchDiscount` is -29.5, which means that we expect to see, on average a student that gets free/reduced lunch score 29.5 points lower than somebody who does not. \## Summary and Conclusion
+We see that `LunchDiscount` is by far the most important variable, followed by `ParentEduc` and then `TestPrep`, indicating that the largest factor in predicting student performance in a random forest is based on whether or not a school qualifies for free or reduced lunch. Having reduced or free lunch is a measure of the income of the student's family, and thus it is reasonable to conclude that family income is a major factor in determining `AggregateScore`. We can confirm these results by viewing the output of the GLIM, and after doing so we see that the coefficient on `LunchDiscount` is -29.5, which means that we expect to see, on average a student that gets free/reduced lunch score 29.5 points lower than somebody who does not.
+
+## Summary and Conclusion
+
+We were able to achieve our goals in our analysis of this data set. Our first research question concerned whether or not math, reading, and writing scores on this standardized test correlate with each other. We found that the correlation between each of these variables is greater than 0.8, and that the correlation between each of these variables and the constructed `AggregateScore` variable was above 0.9. Therefore, it seemed reasonable to us to assume that `AggregateScore` is a good predictor of math, reading, and writing scores on this standardized test.
+
+Our second research question concerned whether test scores were influenced by socioeconomic factors and employed a GLIM and random forest to do so. The coefficients on the GLIM were informative to our understanding of the variables that impact `AggregateScore` and are highly interpretable. The coefficient on `Male` was -11.4, indicating that on average, males are expected to score 11.4 points lower than females. The coefficient on `LunchDiscount` was -29.5, such that students who were on free or reduced lunch would be expected to score 29.5 points lower. Students on free or reduced lunch come from poor families, meaning that students who are poorer are expected to score lower on standardized tests. This leads us to question the validity of standardized exams, if students coming from marginalized communities are less likely to score high than their more affluent peers.
+
+This is a massive decrease and a very important conclusion from our data. `ParentEduc` was encoded as an ordinal variable with ranges from 1: some high school and 6: master's, and as the coefficient was 6.65, we expect an increase in `AggregateScore` of 6.65 points for every one level increase in parental education. This is a drastic difference and can indicate that a parent's education can have a dramatic impact on the child's education as well. The results from the random forests variable importance show that the two most important features were `ParentEduc` and `LunchDiscount`, both socioeconomic variables. Thus, we have answered our research question by concluding that socioeconomic variables are highly significant to predicting standardized test scores.
+
+Our third research question concerned whether test scores were influenced by educational factors. The GLIM output shows that the coefficient on `TestPrep` was 20.32, indicating that those who completed the test prep course scored on average, 20.3 points higher on `AggregateScore` than those who did not. Additionally, `TestPrep` was ranked as the third most important feature by the random forest, showing that this factor is important. However, this variable may be considered as both a socioeconomic and educational factor if the test preparation course is prohibitively expensive. While the variable `WklyStudyHours` was not significant in the model at $\alpha = 0.05$, the coefficient was 0.5765 which indicates that there may be a slight positive correlation between studying and `AggregateScore`. It would have been informative if we had more information about the student's academics or grades in school as a measure of their education level, as this data set really only has two variables that can measure whether standardized tests are affected by academic measures. It appears that the only measured academic variable with a significant effect on test scores is whether or not test preparation was completed.
+
+Our fourth research question was to find the variables which have the greatest effect on test scores. According to our random forest model, the order of variable importance is as follows (we have placed each variable's classification as a primarily socioeconomic or primarily academic within parentheses):
+
+-   `LunchDiscount` (socioeconomic)
+-   `ParentEduc` (socioeconomic)
+-   `TestPrep` (academic)
+-   Being a member of `EthnicGroupE` (socioeconomic)
+-   `Gender` (socioeconomic)
+-   `WklyStudyHours` (academic)
+-   `PracticeSport` (socioeconomic)
+-   Being a member of `EthnicGroupD` (socioeconomic)
+-   Being a member of `EthnicGroupB` (socioeconomic)
+-   Being a member of `EthnicGroupC` (socioeconomic)
+-   `IsFirstChild`  (socioeconomic)
+-   Being a member of EthnicGroupA (socioeconomic)
+
+In this way, we achieved our goal of determining which variables were most important in determining test scores.
+
+Our final research question was to make a determination about whether these tests are good measures of academic performance, or whether they are too heavily influenced by other factors. We can see that of the five most important variables, four are socioeconomic. Although there were more socioeconomic variables included in this study than academic ones, this seems to be an indication that socioeconomic factors were generally more important in predicting test scores than academic ones. For this reason, we believe that these standardized tests are not necessarily good measures of student academic success. Instead, we believe that they are too dependent on socioeconomic factors to be an effective measure.
+
+Moving forward, these results could be more informative if the data set was more informational. While there were solid statistics about the student's background and home-life, there were no statistics about a student's grades or academic performance on non-standardized tests. These could have been extremely informative and could have keyed us into important insights to see if poorer students are learning less or scoring worse on exams. It is possible that standardized tests are not measuring learning well if questions are worded improperly or geared towards students from more affluent backgrounds, and somebody who had access to data that showed that poorer students perform well in class but not in standardized tests would be able to make these assumptions. As we do not have this data however, we cannot.
+
+Overall we enjoyed the linear modeling more, as the results are more interpretable and easier to understand than the random forest model which only is computing how important factors are. However, random forests may give better predictions, so if we were more focused on trying to predict a student's exam scores based on their background, random forests would likely give better results.
+
+A github repository for this project has been setup at https://github.com/ofiore/STAT5405Project which contains additional resources and visualizations.
 
 ## References
 

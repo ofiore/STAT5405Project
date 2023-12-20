@@ -1,11 +1,10 @@
 ---
-title: "FinalReport"
+title: "Student Exam Excellence"
 format: pdf
 editor: visual
 author: Meghan Myles and Owen Fiore
 ---
 
-# Student Exam Excellence
 
 ## Abstract
 

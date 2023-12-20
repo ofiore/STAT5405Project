@@ -75,23 +75,26 @@ The final part of a GLIM is the link function which has the form:
 
 $g(\mu_i) = \eta_i$
 
-Where $g()$ is a continuous function that maps the mean response $\mu_i$ to its systematic component $\eta_i$. Several link functions were considered, but the one that showed the best results when utilizing a normal quantile-quantile plot was a Gaussian family with identity link, so that will be the GLIM presented throughout the rest of the paper.  Additionally, a Gaussian family with identity link is highly interpretable, as the coefficients can be interpreted as how they appear in the model.
+Where $g()$ is a continuous function that maps the mean response $\mu_i$ to its systematic component $\eta_i$. Several link functions were considered, but the one that showed the best results when utilizing a normal quantile-quantile plot was a Gaussian family with identity link, so that will be the GLIM presented throughout the rest of the paper. Additionally, a Gaussian family with identity link is highly interpretable, as the coefficients can be interpreted as how they appear in the model.
 
 ### Random Forests
 
-In addition to the linear model methods described above, we wanted to implement more complex methods through more sophisticated models. Random Forests are an ensemble learning method that use a collection of decision trees to create optimal predictions. Decision trees typically work using the CART algorithm, which is a greedy algorithm that minimizes the number of incorrectly classified cases, typically measured by the Gini index of a node. Eventually stopping conditions will be met based on a number of potential factors, but the one used in this paper is minimum node size. As random forests are made up of a number of decision trees, the number of trees is a hyper-parameter in the input of the random forest. As we have multiple hyperparameters that we want to control: number of trees and minimum node size, we will implement grid search cross validation in order to iterate through possible combinations of hyperparameters to find the optimal hyperpaperameters. After running the search, we concluded that the optimal number of trees was 900 and that we should have a minimum of 25 observations in each node.  Additionally, we will need to analyze how important each variable was in building the random forests.  Random forests are a collection of trees, and tree based methods work by splitting at the most decisive points to try and maximize the separation between children nodes.  Thus, variables that are indicated to be important are significant predictors in `AggregateScore`, as the predicted score will change decently based on whether an observation has that particular feature or not.  While we hope to see that socio-economic factors do not play a large role in performance, we know from prior reading that is not likely to be the case.  Nonetheless, this analysis is important and aims to motivate further questions about the quality of standardized tests.
+In addition to the linear model methods described above, we wanted to implement more complex methods through more sophisticated models. Random Forests are an ensemble learning method that use a collection of decision trees to create optimal predictions. Decision trees typically work using the CART algorithm, which is a greedy algorithm that minimizes the number of incorrectly classified cases, typically measured by the Gini index of a node. Eventually stopping conditions will be met based on a number of potential factors, but the one used in this paper is minimum node size. As random forests are made up of a number of decision trees, the number of trees is a hyper-parameter in the input of the random forest. As we have multiple hyperparameters that we want to control: number of trees and minimum node size, we will implement grid search cross validation in order to iterate through possible combinations of hyperparameters to find the optimal hyperpaperameters. After running the search, we concluded that the optimal number of trees was 900 and that we should have a minimum of 25 observations in each node. Additionally, we will need to analyze how important each variable was in building the random forests. Random forests are a collection of trees, and tree based methods work by splitting at the most decisive points to try and maximize the separation between children nodes. Thus, variables that are indicated to be important are significant predictors in `AggregateScore`, as the predicted score will change decently based on whether an observation has that particular feature or not. While we hope to see that socio-economic factors do not play a large role in performance, we know from prior reading that is not likely to be the case. Nonetheless, this analysis is important and aims to motivate further questions about the quality of standardized tests.
 
 ## Results
 
 ```{r}
 df <- read.csv("DataToModel.csv")
 
-predictor_variables <- df[, c("MathScore", "ReadingScore", "WritingScore", "AggregateScore")]
+predictor_variables <- df[, c("MathScore", "ReadingScore", "WritingScore",
+                              "AggregateScore")]
 cor(predictor_variables)
 ```
-We have four predictor variables in our dataset: `MathScore`, `ReadingScore`, `WritingScore`, and `AggregateScore` which is the sum of the previous three.  The correlation results show that the scores are generally very highly correlated and thus it seems reasonable for this section to only use `AggregateScore`, as the results should generalize well to the other three scores.  This will help to keep the results concise as any results that can be applied to `AggregateScore` should be able to be applied to the other variables.  Logically, it also does not seem reasonable that many of the predictors such as `LunchType` would be good at predicting `MathScore` but not `ReadingScore`.
+
+We have four predictor variables in our dataset: `MathScore`, `ReadingScore`, `WritingScore`, and `AggregateScore` which is the sum of the previous three. The correlation results show that the scores are generally very highly correlated and thus it seems reasonable for this section to only use `AggregateScore`, as the results should generalize well to the other three scores. This will help to keep the results concise as any results that can be applied to `AggregateScore` should be able to be applied to the other variables. Logically, it also does not seem reasonable that many of the predictors such as `LunchType` would be good at predicting `MathScore` but not `ReadingScore`.
 
 Now that we have chose `AggregateScore` as our predictor, we can split our data into 80% training and 20% testing.
+
 ```{r}
 set.seed(123457)
 train.prop <- 0.80
@@ -104,74 +107,96 @@ df.test <- df[-idx, ]
 ```
 
 ### Linear Model Results
-Now, we are ready to implement a linear model.  Several simpler models were considered without exponential families, but were excluded for the purpose of keeping the Results section concise, but extended work and methodology can be found in the Supplementary Files folder under "Models.Rmd".
+
+Now, we are ready to implement a linear model. Several simpler models were considered without exponential families, but were excluded for the purpose of keeping the Results section concise, but extended work and methodology can be found in the Supplementary Files folder under "Models.Rmd".
 
 We can see how the fit is with all predictor in the model.
 
 ```{r}
-predictors <- c("Male", "ParentEduc", "LunchDiscount", "TestPrep", "PracticeSport", "IsFirstChild", "NrSiblings", "PrivateTransport", "WklyStudyHours", "EthnicGroupA", "EthnicGroupB", "EthnicGroupC", "EthnicGroupD", "EthnicGroupE", "ParentDivorced", "ParentMarried", "ParentSingle", "ParentWidowed" )
-
-all <- glm(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep + PracticeSport + IsFirstChild + NrSiblings + PrivateTransport + WklyStudyHours + EthnicGroupA + EthnicGroupB + EthnicGroupC + EthnicGroupD + EthnicGroupE + ParentDivorced + ParentMarried + ParentSingle + ParentWidowed, data = df.train, family = gaussian(link = "identity"))
+all <- glm(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep +
+             PracticeSport + IsFirstChild + NrSiblings + PrivateTransport +
+             WklyStudyHours + EthnicGroupA + EthnicGroupB + EthnicGroupC +
+             EthnicGroupD + EthnicGroupE + ParentDivorced + ParentMarried +
+             ParentSingle + ParentWidowed, data = df.train, 
+           family = gaussian(link = "identity"))
 summary(all)
 ```
-We see there are too many parameters in the model, as several such as `IsFirstChild` and `NrSiblings` are not significant.  Additionally, we do not to include some variables that were one-hot encoded such as `EthnicGroupE` and `ParentWidowed`, as if an observation is not in Ethnic Groups A-D then it is known that person must have come from Ethnic Group E.  There is almost certainly multicollinearity, which will have to be resolved later.
 
-```{r}
+We see there are too many parameters in the model, as several such as `IsFirstChild` and `NrSiblings` are not significant. Additionally, we do not to include some variables that were one-hot encoded such as `EthnicGroupE` and `ParentWidowed`, as if an observation is not in Ethnic Groups A-D then it is known that person must have come from Ethnic Group E. There is almost certainly multicollinearity, which will have to be resolved later.
+
+```{r, include = FALSE}
 par(mfrow = c(2,2))
 plot(all)
 ```
-Despite potential problems with too many variables, we see strong results, the residuals appear to be normally distributed, and although the normal q-q plot shows that some values are underfitted, it is reasonable given that we are working with standardized test data where there is a maximum score (300 as this is `AggregateScore` we are modeling) and thus even the students who have the highest probability to score extremely high are bounded by an upper score and thus the observed values are lower than the theoretical.  Next, we will use step selection to remove poor indicating variables, while hoping to attain similar residual plots.
+
+Next, we will use step selection to remove poor indicating variables, while hoping to attain similar residual plots.
 
 ```{r}
 step_model <- step(all, direction = "both", trace = 0)
 summary(step_model)
 ```
-The step algorithm was able to remove many of the insignificant predictors and able to cut down the list of predictors to only the most important.  It is worth noting that although there are some variables that are technically not significant at $\alpha = 0.05$, the coefficient estimates and standard errors show that the variables are still adding value.
+
+The step algorithm was able to remove many of the insignificant predictors and able to cut down the list of predictors to only the most important. It is worth noting that although there are some variables that are technically not significant at $\alpha = 0.05$, the coefficient estimates and standard errors show that the variables are still adding value.
 
 ```{r}
 par(mfrow = c(2,2))
 plot(step_model)
 ```
-As we hoped to see, the residual plots all still appear to be strong, indicating that there are no outlier points exerting undue influence on the model, and no particularly high leverage points as well.
 
-We can now see how well we did by validating on the test dataset.
+As we hoped to see, the residual plots all still appear to be strong, indicating that there are no outlier points exerting undue influence on the model, and no particularly high leverage points as well. Although the normal q-q plot shows that some values are underfitted, it is reasonable given that we are working with standardized test data where there is a maximum score (300 as this is `AggregateScore` we are modeling) and thus even the students who have the highest probability to score extremely high are bounded by an upper score and thus the observed values are lower than the theoretical.
+
+We can now see how well we did by validating on the test data set.
+
 ```{r}
 test_predictions <- predict(step_model, newdata = df.test, type = "link")
 test_results <- data.frame(Actual = df.test$AggregateScore, Predicted = test_predictions)
-plot(test_results$Actual, test_results$Predicted, col="grey33", cex=0.3, xlab="Actual", ylab="Predicted")
+plot(test_results$Actual, test_results$Predicted, col="grey33", cex=0.3, 
+     xlab="Actual", ylab="Predicted")
 abline(0,1)
 ```
-While there was error, it appears to be normally distributed around the y=x line, and helps to show that the model fit is good.  Now we need to see if the step selection reduced multicollinearity and if there were any issues with variables having a high VIF.
+
+While there was error, it appears to be normally distributed around the y=x line, and helps to show that the model fit is good. Now we need to see if the step selection reduced multicollinearity and if there were any issues with variables having a high VIF.
+
 ```{r}
 car::vif(step_model)
 ```
-There is no evidence to suggest there is multicollinearity, as many values are very close to 1, with the exception of the Ethnic Groups which are one-hot encoded and thus dependent on each other.  These results show that the step function did a good job of selecting the correct variables to be used.
+
+There is no evidence to suggest there is multicollinearity, as many values are very close to 1, with the exception of the Ethnic Groups which are one-hot encoded and thus dependent on each other. These results show that the step function did a good job of selecting the correct variables to be used.
 
 ```{r}
 mse <- mean((test_results$Actual - test_results$Predicted)^2)
 mse
 ```
+
 The mean squared error of the GLIM is 1501.613. We can now compare these results to what we get when implementing a random forest.
 
 ### Random Forest Results
+
 ```{r}
 set.seed(1)
 library(ranger)
-rf_step <- ranger(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep + PracticeSport + IsFirstChild + WklyStudyHours + EthnicGroupA + EthnicGroupB + EthnicGroupC + EthnicGroupD + EthnicGroupE, data = df.train, importance = "impurity")
+rf_step <- ranger(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep
+                  + PracticeSport + IsFirstChild + WklyStudyHours + EthnicGroupA
+                  + EthnicGroupB + EthnicGroupC + EthnicGroupD + EthnicGroupE,
+                  data = df.train, importance = "impurity")
 rf_step
 ```
-We can run a random forest with many default parameters that use 500 trees and a target node size of 5, but we also expect that we can improve results by changing hyperparameters.  Using the methods described above we can use a brute force algorithm to find the best combinations of hyperparameters in hopes of finding something with a lower Out Of Bag prediction error, which is represented by mean squared error.
 
-```{r}
+We can run a random forest with many default parameters that use 500 trees and a target node size of 5, but we also expect that we can improve results by changing hyperparameters. Using the methods described above we can use a brute force algorithm to find the best combinations of hyperparameters in hopes of finding something with a lower Out Of Bag prediction error, which is represented by mean squared error. This model is reported as `best_model` below as to save space we have hidden the code chunk from the rendered pdf version, but the code will appear in the qmd file.
+
+```{r, echo=FALSE}
 set.seed(1)
 library(ranger)
 
-# Define your custom function for training a random forest
+
 train_rf <- function(num.trees, min.node.size) {
   
   
-  # Create the random forest model
-  rf_model <- ranger(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep + PracticeSport + IsFirstChild + WklyStudyHours + EthnicGroupA + EthnicGroupB + EthnicGroupC + EthnicGroupD + EthnicGroupE,
+  #Random forest model
+  rf_model <- ranger(AggregateScore ~ Male + ParentEduc + LunchDiscount +
+                       TestPrep + PracticeSport + IsFirstChild + WklyStudyHours
+                     + EthnicGroupA + EthnicGroupB + EthnicGroupC + EthnicGroupD
+                     + EthnicGroupE,
                      data = df.train,
                      importance = "impurity",
                      num.trees = num.trees,
@@ -184,9 +209,8 @@ train_rf <- function(num.trees, min.node.size) {
   return(list(model = rf_model, oob_error = oob_error))
 }
 
-# Example usage:
-# Replace 'your_data' with your actual dataset and 'your_target_col' with your target variable
-# Set the hyperparameter values you want to try
+
+# Set hyperparameters
 num_trees_values <- c(300, 500, 700, 900)
 min_node_size_values <- c(20, 25, 30, 35)
 
@@ -208,19 +232,26 @@ for (num_trees in num_trees_values) {
     }
   }
 }
+```
 
+```{r}
 # The best model is stored in 'best_model' with the lowest OOB error
 print(best_model)
 ```
 
-We see that the best model has 900 trees and has a target node size of 25 rather than 5.  Despite these changes, we unfortunately do not see a huge change in the mean squared error, as the improvement was quite small.  Nonetheless, the mean squared error from this model was 1368.4 which is an improvement over the error produced by the GLIM, which was 1501.6.  In order to get a better understanding for the effectiveness of the random forest, it is helpful to look at variable importance.  The graph below summarizes the importance of each variable that was included in the random forest.
-```{r}
+We see that the best model has 900 trees and has a target node size of 25 rather than 5. Despite these changes, we unfortunately do not see a huge change in the mean squared error, as the improvement was quite small. Nonetheless, the mean squared error from this model was 1368.4 which is an improvement over the error produced by the GLIM, which was 1501.6. In order to get a better understanding for the effectiveness of the random forest, it is helpful to look at variable importance. The graph below summarizes the importance of each variable that was included in the random forest.
+
+```{r, include = FALSE}
 library(vip)
+```
+
+
+```{r}
 importance <- vi(best_model)
 vip(importance)
 ```
-We see that `LunchDiscount` is by far the most important variable, followed by `ParentEduc` and then `TestPrep`, indicating that the largest factor in predicting student performance in a random forest is based on whether or not a school qualifies for free or reduced lunch.  Having reduced or free lunch is a measure of the income of the student's family, and thus it is reasonable to conclude that family income is a major factor in determining `AggregateScore`.  We can confirm these results by viewing the output of the GLIM, and after doing so we see that the coefficient on `LunchDiscount` is -29.5, which means that we expect to see, on average a student that gets free/reduced lunch score 29.5 points lower than somebody who does not.
-## Summary and Conclusion
+
+We see that `LunchDiscount` is by far the most important variable, followed by `ParentEduc` and then `TestPrep`, indicating that the largest factor in predicting student performance in a random forest is based on whether or not a school qualifies for free or reduced lunch. Having reduced or free lunch is a measure of the income of the student's family, and thus it is reasonable to conclude that family income is a major factor in determining `AggregateScore`. We can confirm these results by viewing the output of the GLIM, and after doing so we see that the coefficient on `LunchDiscount` is -29.5, which means that we expect to see, on average a student that gets free/reduced lunch score 29.5 points lower than somebody who does not. \## Summary and Conclusion
 
 ## References
 

@@ -1,6 +1,6 @@
 ---
 title: "FinalReport"
-format: html
+format: pdf
 editor: visual
 author: Meghan Myles and Owen Fiore
 ---
@@ -13,14 +13,13 @@ Standardized tests have been used to try and evaluate how much each student has 
 
 ## Introduction
 
-It is important to be able to measure students’ academic performance, as such measurements can help guide decisions about best educational practices at every level. They can help to identify individual students who are performing poorly in order to give them more individualized instruction. They can identify districts which are underperforming in order to better invest educational resources. They can identify subject areas in which students are consistently underperforming in order to tailor teaching methods. One method of evaluating students’ academic performance is by investigating their scores on standardized exams.
+It is important to be able to measure students' academic performance, as such measurements can help guide decisions about best educational practices at every level. They can help to identify individual students who are performing poorly in order to give them more individualized instruction. They can identify districts which are underperforming in order to better invest educational resources. They can identify subject areas in which students are consistently underperforming in order to tailor teaching methods. One method of evaluating students' academic performance is by investigating their scores on standardized exams.
 
 It is desirable to explore factors influencing standardized test scores to determine if standardized tests are performing as they should be. Ideally we would like to see that standardized test scores are poorly correlated with socioeconomic factors and very strongly correlated with how much students study for them. This would be indicative that standardized test scores and thus learning are not impacted very much by prior factors and that students of all backgrounds have the chance to succeed.
 
-There have been a number of investigations into the interactions between socioeconomic factors and student academic performance. According to the NIH, around half of people who grew up in a high-income family have a bachelor’s degree by the age of 25, while only about 10% of people from low-income families have a bachelor’s degree by 25. In addition, there tend to be fewer AP classes offered in schools which traditionally serve low-income and minority students (National Institutes of Health). In addition, on certain standardized tests, some groups tend to consistently outperform others. On the SAT II writing exam, the average white student outperformed the average student of color (Thomas 2004). A University of South Florida study showed that students’ SAT and ACT scores were not predictive of their college academic performance (Micceri 2010). In a 2009 study, Black and latino students performed lower on the MCAT, on average, than white students (Davis 2013). It is clear that standardized test scores are not necessarily only indicative of academic success - it seems that they also capture variation introduced by socioeconomic factors.
+There have been a number of investigations into the interactions between socioeconomic factors and student academic performance. According to the NIH, around half of people who grew up in a high-income family have a bachelor's degree by the age of 25, while only about 10% of people from low-income families have a bachelor's degree by 25. In addition, there tend to be fewer AP classes offered in schools which traditionally serve low-income and minority students (National Institutes of Health). In addition, on certain standardized tests, some groups tend to consistently outperform others. On the SAT II writing exam, the average white student outperformed the average student of color (Thomas 2004). A University of South Florida study showed that students' SAT and ACT scores were not predictive of their college academic performance (Micceri 2010). In a 2009 study, Black and latino students performed lower on the MCAT, on average, than white students (Davis 2013). It is clear that standardized test scores are not necessarily only indicative of academic success - it seems that they also capture variation introduced by socioeconomic factors.
 
-We will examine a dataset detailing students’ standardized test scores, as well as measures for several socioeconomic factors and student dedication to academics. In doing so, we will be able to determine whether or not this standardized test is appropriate for measuring true student achievement.
-
+We will examine a dataset detailing students' standardized test scores, as well as measures for several socioeconomic factors and student dedication to academics. In doing so, we will be able to determine whether or not this standardized test is appropriate for measuring true student achievement.
 
 ## Data Description:
 
@@ -40,7 +39,7 @@ Here is a link to the kaggla data: <https://www.kaggle.com/datasets/desalegngeb/
 
 MathScore, ReadingScore, WritingScore are the student's math, reading, and writing scores respectively and serve as the response variable in this dataset. Scores range from 0 to 100 with 0 indicating low performance and 100 indicating perfect.
 
-We will treat the variables Gender, EthnicGroup, ParentEduc, ParentMaritalStatus, PracticeSport, NrSibling, and TransportMeans as indicators of students’ socioeconomic status. We will treat the variables TestPrep and WklyStudyHours as indicators of students’ academic dedication.
+We will treat the variables Gender, EthnicGroup, ParentEduc, ParentMaritalStatus, PracticeSport, NrSibling, and TransportMeans as indicators of students' socioeconomic status. We will treat the variables TestPrep and WklyStudyHours as indicators of students' academic dedication.
 
 As this dataset is fictional, it is impossible to perform any additional research on the background of the town this data came from or provide more context.
 
@@ -48,53 +47,119 @@ As this dataset is fictional, it is impossible to perform any additional researc
 
 Our goal is to determine whether or not standardized tests are performing well in measuring academic performance. Our research questions are as follows:
 
-Do math, reading, and writing scores on this standardized test correlate with each other?
-Do performances on the tests correlate with socioeconomic factors, such as highest parental education level or receiving a free/reduced lunch?
-Do performances on the tests correlate with indicators of academic commitment, such as studying for many hours weekly and completing test preparation courses?
-Do test scores vary significantly across gender and ethnic groups?
-In all, does it appear that each of these tests are measuring true academic performance, or are they heavily influenced by other factors?
+Do math, reading, and writing scores on this standardized test correlate with each other? Do performances on the tests correlate with socioeconomic factors, such as highest parental education level or receiving a free/reduced lunch? Do performances on the tests correlate with indicators of academic commitment, such as studying for many hours weekly and completing test preparation courses? Do test scores vary significantly across gender and ethnic groups? In all, does it appear that each of these tests are measuring true academic performance, or are they heavily influenced by other factors?
 
 By regressing test scores on the other variables available in this dataset, we hope to be able to determine answers to these questions. We will determine whether standardized test performance is more highly correlated with socioeconomic factors or academic dedication. This will help us to determine whether or not the tests are appropriate measures of academic performance.
 
 ## Methods
-In this paper we will test out the use of several different models of varying complexities
-to try and best fit our data, starting with a linear model.  Regression diagnostics showed that the model was over-predicting the achievement of students who should be doing really well.  Thus we decided to implement a Generalized Linear Model to try and remedy this. A generalized linear model has a random component, systematic component, and a link function.
+
+### Generalized Linear Model
+
+In this paper we will test out the use of several different models of varying complexities to try and best fit our data, starting with a linear model. Regression diagnostics showed that the model was over-predicting the achievement of students who should be doing really well. Thus we decided to implement a Generalized Linear Model to try and remedy this. A generalized linear model has a random component, systematic component, and a link function.
 
 The random component is a probability density function from an exponential family:
-\[f(y; \theta, \phi) = \exp{\frac{y\theta - b(\theta)}{a(\phi) + c(y, \phi)}} \]
-where $\theta$ and $\phi > 0$ are scalar parameters, and $a$, $b$, $c$, are known functions.  The form of a Gaussian distribution with an identity link is:
-\[ f(y | \mu, \sigma^2) = \frac{1}{\sqrt(2 \pi \sigma^2)} \exp(-\frac{(y - \mu)^2}{2 \sigma^2}) \]. Where $\mu$ is the mean of the distribution and $\sigma^2$ is the variance
+
+$f(y; \theta, \phi) = \exp{\frac{y\theta - b(\theta)}{a(\phi) + c(y, \phi)}}$ where $\theta$ and $\phi > 0$ are scalar parameters, and $a$, $b$, $c$, are known functions. The form of a Gaussian distribution with an identity link is:
+
+$f(y \| \mu, \sigma^2) = \frac{1}{\sqrt(2 \pi \sigma^2)} \exp(-\frac{(y - \mu)^2}{2 \sigma^2})$. Where $\mu$ is the mean of the distribution and $\sigma^2$ is the variance
 
 The systematic component is the main part of the model and is a generalized form of a linear model such that for the systematic component: $\eta_i$ we have:
-\[ \eta_i = \beta_0 + \sum_{j=1}^p \beta_j X_{ij} \]
-To obtain this part, we implemented stepwise selection through the `step` R function in both directions, allowing both forward and backwards selection.  Forward or backwards selection is a variable selection algorithm that looks for the most significant predictors and returns a model when there cannot be any additional significant variables added.  The algorithm returned that the following parameters should be included in the model: `Male`, `ParentEduc`, `LunchDiscount`, `TestPrep`, `PracticeSport`, `IsFirstChild`, `WklyStudyHours`, and all variables of the form `EthnicGroup`. 
 
-Male           -11.4038     0.5946 -19.178  < 2e-16 ***
-ParentEduc       6.6478     0.1993  33.351  < 2e-16 ***
-LunchDiscount  -29.4815     0.6233 -47.301  < 2e-16 ***
-TestPrep        20.3223     0.6246  32.536  < 2e-16 ***
-PracticeSport    3.5873     0.4462   8.040 9.66e-16 ***
-IsFirstChild     0.8918     0.6207   1.437    0.151    
-WklyStudyHours   0.5765     0.3883   1.484    0.138    
-EthnicGroupA   -26.3258     1.3420 -19.616  < 2e-16 ***
-EthnicGroupB   -25.8893     1.0286 -25.169  < 2e-16 ***
-EthnicGroupC   -22.6609     0.9488 -23.883  < 2e-16 ***
-EthnicGroupD   -13.0288     0.9828 -13.257  < 2e-16 ***
+$\eta_i = \beta_0 + \sum_{j=1}^p \beta_j X_{ij}$
 
-\[ g(\mu_i) = \eta_i = \beta_0 + \beta_1X__{i1} + ... + \beta_pX__{ip} \]
-We choose to implement a gaussian 
+To obtain this part, we implemented stepwise selection through the `step` R function in both directions, allowing both forward and backwards selection. Forward or backwards selection is a variable selection algorithm that looks for the most significant predictors and returns a model when there cannot be any additional significant variables added. The algorithm returned that the following parameters should be included in the model: `Male`, `ParentEduc`, `LunchDiscount`, `TestPrep`, `PracticeSport`, `IsFirstChild`, `WklyStudyHours`, and all variables of the form `EthnicGroup`. Thus our model looks like:
+
+$\eta_i = \beta_0 + \beta_1 Male + \beta_2ParentEduc + ... + \beta_{11}EthnicGroupE$
+
+The final part of a GLIM is the link function which has the form:
+
+$g(\mu_i) = \eta_i$
+
+Where $g()$ is a continuous function that maps the mean response $\mu_i$ to its systematic component $\eta_i$. Several link functions were considered, but the one that showed the best results when utilizing a normal quantile-quantile plot was a Gaussian family with identity link, so that will be the GLIM presented throughout the rest of the paper.
+
+### Random Forests
+
+In addition to the linear model methods described above, we wanted to implement more complex methods through more sophisticated models. Random Forests are an ensemble learning method that use a collection of decision trees to create optimal predictions. Decision trees typically work using the CART algorithm, which is a greedy algorithm that minimizes the number of incorrectly classified cases, typically measured by the Gini index of a node. Eventually stopping conditions will be met based on a number of potential factors, but the one used in this paper is minimum node size. As random forests are made up of a number of decision trees, the number of trees is a hyper-parameter in the input of the random forest. As we have multiple hyperparameters that we want to control: number of trees and minimum node size, we will implement grid search cross validation in order to iterate through possible combinations of hyperparameters to find the optimal hyperpaperameters. After running the search, we concluded that the optimal number of trees was 900 and that we should have a minimum of 25 observations in each node.
 
 ## Results
 
-## Summary and Conclusion
+```{r}
+df <- read.csv("DataToModel.csv")
 
+predictor_variables <- df[, c("MathScore", "ReadingScore", "WritingScore", "AggregateScore")]
+cor(predictor_variables)
+```
+We have four predictor variables in our dataset: `MathScore`, `ReadingScore`, `WritingScore`, and `AggregateScore` which is the sum of the previous three.  The correlation results show that the scores are generally very highly correlated and thus it seems reasonable for this section to only use `AggregateScore`, as the results should generalize well to the other three scores.  This will help to keep the results concise as any results that can be applied to `AggregateScore` should be able to be applied to the other variables.  Logically, it also does not seem reasonable that many of the predictors such as `LunchType` would be good at predicting `MathScore` but not `ReadingScore`.
+
+Now that we have chose `AggregateScore` as our predictor, we can split our data into 80% training and 20% testing.
+```{r}
+set.seed(123457)
+train.prop <- 0.80
+strats <- df$AggregateScore
+rr <- split(1:length(strats), strats)
+idx <- sort(as.numeric(unlist(sapply(rr, 
+        function(x) sample(x, length(x)*train.prop)))))
+df.train <- df[idx, ]
+df.test <- df[-idx, ]
+```
+
+Now, we are ready to implement a linear model.  Several simpler models were considered without exponential families, but were excluded for the purpose of keeping the Results section concise, but extended work and methodology can be found in the Supplementary Files folder under "Models.Rmd".
+
+We can see how the fit is with all predictor in the model.
+
+```{r}
+predictors <- c("Male", "ParentEduc", "LunchDiscount", "TestPrep", "PracticeSport", "IsFirstChild", "NrSiblings", "PrivateTransport", "WklyStudyHours", "EthnicGroupA", "EthnicGroupB", "EthnicGroupC", "EthnicGroupD", "EthnicGroupE", "ParentDivorced", "ParentMarried", "ParentSingle", "ParentWidowed" )
+
+all <- glm(AggregateScore ~ Male + ParentEduc + LunchDiscount + TestPrep + PracticeSport + IsFirstChild + NrSiblings + PrivateTransport + WklyStudyHours + EthnicGroupA + EthnicGroupB + EthnicGroupC + EthnicGroupD + EthnicGroupE + ParentDivorced + ParentMarried + ParentSingle + ParentWidowed, data = df.train, family = gaussian(link = "identity"))
+summary(all)
+```
+We see there are too many parameters in the model, as several such as `IsFirstChild` and `NrSiblings` are not significant.  Additionally, we do not to include some variables that were one-hot encoded such as `EthnicGroupE` and `ParentWidowed`, as if an observation is not in Ethnic Groups A-D then it is known that person must have come from Ethnic Group E.  There is almost certainly multicollinearity, which will have to be resolved later.
+
+```{r}
+par(mfrow = c(2,2))
+plot(all)
+```
+Despite potential problems with too many variables, we see strong results, the residuals appear to be normally distributed, and although the normal q-q plot shows that some values are underfitted, it is reasonable given that we are working with standardized test data where there is a maximum score (300 as this is `AggregateScore` we are modeling) and thus even the students who have the highest probability to score extremely high are bounded by an upper score and thus the observed values are lower than the theoretical.  Next, we will use step selection to remove poor indicating variables, while hoping to attain similar residual plots.
+
+```{r}
+step_model <- step(all, direction = "both", trace = 0)
+summary(step_model)
+```
+The step algorithm was able to remove many of the insignificant predictors and able to cut down the list of predictors to only the most important.  It is worth noting that although there are some variables that are technically not significant at $\alpha = 0.05$, the coefficient estimates and standard errors show that the variables are still adding value.
+
+```{r}
+par(mfrow = c(2,2))
+plot(step_model)
+```
+As we hoped to see, the residual plots all still appear to be strong, indicating that there are no outlier points exerting undue influence on the model, and no particularly high leverage points as well.
+
+We can now see how well we did by validating on the test dataset.
+```{r}
+test_predictions <- predict(step_model, newdata = df.test, type = "link")
+test_results <- data.frame(Actual = df.test$AggregateScore, Predicted = test_predictions)
+plot(test_results$Actual, test_results$Predicted, col="grey33", cex=0.3, xlab="Actual", ylab="Predicted")
+abline(0,1)
+```
+While there was error, it appears to be normally distributed around the y=x line, and helps to show that the model fit is good.  Now we need to see if the step selection reduced multicollinearity and if there were any issues with variables having a high VIF.
+```{r}
+car::vif(step_model)
+```
+There is no evidence to suggest there is multicollinearity, as many values are very close to 1, with the exception of the Ethnic Groups which are one-hot encoded and thus dependent on each other.  These results show that the step function did a good job of selecting the correct variables to be used.
+
+```{r}
+mse <- mean((test_results$Actual - test_results$Predicted)^2)
+mse
+```
+The mean squared error of the model is 1501.613
+
+## Summary and Conclusion
 
 ## References
 
-Davis, Dwight MD; Dorsey, J. Kevin MD, PhD; Franks, Ronald D. MD; Sackett, Paul R. PhD; Searcy, Cynthia A. PhD; Zhao, Xiaohui PhD. Do Racial and Ethnic Group Differences in Performance on the MCAT Exam Reflect Test Bias?. Academic Medicine 88(5):p 593-602, May 2013. | DOI: 10.1097/ACM.0b013e318286803a
+Davis, Dwight MD; Dorsey, J. Kevin MD, PhD; Franks, Ronald D. MD; Sackett, Paul R. PhD; Searcy, Cynthia A. PhD; Zhao, Xiaohui PhD. Do Racial and Ethnic Group Differences in Performance on the MCAT Exam Reflect Test Bias?. Academic Medicine 88(5):p 593-602, May 2013. \| DOI: 10.1097/ACM.0b013e318286803a
 
-“Individuals from Disadvantaged Backgrounds.” National Institutes of Health, U.S. Department of Health and Human Services, extramural-diversity.nih.gov/diversity-matters/disadvantaged-backgrounds. 
+"Individuals from Disadvantaged Backgrounds." National Institutes of Health, U.S. Department of Health and Human Services, extramural-diversity.nih.gov/diversity-matters/disadvantaged-backgrounds.
 
-Micceri, Theodore. “Assessing the Usefulness of SAT and Act Tests in Minority Admissions.” Online Submission, Institute of Educational Sciences, 31 Dec. 2009, eric.ed.gov/?id=ED510111. 
+Micceri, Theodore. "Assessing the Usefulness of SAT and Act Tests in Minority Admissions." Online Submission, Institute of Educational Sciences, 31 Dec. 2009, eric.ed.gov/?id=ED510111.
 
 Thomas, M.K. (2004), The SAT II: Minority/Majority Test-Score Gaps and What They Could Mean for College Admissions. Social Science Quarterly, 85: 1318-1334. https://doi.org/10.1111/j.0038-4941.2004.00278.x
